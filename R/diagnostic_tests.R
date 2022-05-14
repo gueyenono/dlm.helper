@@ -115,7 +115,7 @@ diagnostic_tests <- function(dlm_filtered, n_lags){
 
 full_dlm_diagnostics <- function(dlm_model, lags){
 
-  ind <- dt_independence(dlm_model$filtered, dlm_model$n_state_vars, dlm_model$n_hyper_params, lags)
+  ind <- dt_independence(dlm_model$filtered, dlm_model$n_state_vars)
   hom <- dt_homoskedasticity(dlm_model$filtered, dlm_model$n_state_vars)
   norm <- dt_normality(dlm_model$filtered, dlm_model$n_state_vars)
 
