@@ -41,7 +41,7 @@ full_dlm_modeling <- function(
     "slope" %in% state_components ~ 2
   )
 
-  if(is.atomic(reg_data)) reg_data <- as.matrix(reg_data)
+  if(!is.null(reg_data) & is.atomic(reg_data)) reg_data <- as.matrix(reg_data)
 
   # Number of state variables
 
