@@ -57,8 +57,17 @@ full_dlm_modeling <- function(
 
   state_components2 <- c(
     setdiff(state_components, "regressor"),
-    paste0("reg", seq_len(ncol(reg_data)))
+    {
+      if("regressor" %in% state_components){
+        out <- paste0("reg", seq_len(ncol(reg_data)))
+      } else {
+        out <- NULL
+      }
+      out
+    }
+    # paste0("reg", seq_len(ncol(reg_data)))
   )
+
 
   hyper_params <- setdiff(state_components2, deterministic_components)
   n_hyper_params <- 1 + length(hyper_params)
