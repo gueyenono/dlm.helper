@@ -98,10 +98,11 @@ dt_normality <- function(dlm_filtered){
 #' @param dlm_filtered The output from \code{dlm::dlmFilter()}.
 #' @param n_lags
 #'
-#' @return
+#' @return A data.frame/tibble of the model results including a column specifying whether the assumptions of independence, homoskedasticity and normality of the residuals is satisfied.
 #' @export
 #'
 #' @examples
+#' Soon!
 diagnostic_tests <- function(dlm_filtered, n_lags){
 
   ind <- dt_independence(dlm_filtered = dlm_filtered, n_lags = n_lags)

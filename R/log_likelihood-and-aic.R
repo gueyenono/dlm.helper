@@ -2,7 +2,7 @@
 #'
 #' @param dlm_filtered The output from \code{dlm::dlmFilter()}.
 #'
-#' @return
+#' @return The value of the log-likelihood function.
 #'
 #' @examples
 #' Soon!

@@ -1,6 +1,6 @@
-source(here::here("R/visualizations.R"))
-source(here::here("R/diagnostic_tests.R"))
-source(here::here("R/log-lik_aic.R"))
+# source(here::here("R/visualizations.R"))
+# source(here::here("R/diagnostic_tests.R"))
+# source(here::here("R/log-lik_aic.R"))
 
 
 #' Dynamic Linear Model Estimation
@@ -15,6 +15,7 @@ source(here::here("R/log-lik_aic.R"))
 #' @export
 #'
 #' @examples
+#' Soon!
 full_dlm_modeling <- function(
     series,
     state_components = "level",
