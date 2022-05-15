@@ -32,7 +32,7 @@ full_dlm_modeling <- function(
 
   stopifnot("The state_components argument must contain any combination of 'level' (mandatory), 'slope', 'seasonal' and 'regressor'." =  all(state_components %in% c("level", "slope", "seasonal", "regressor")))
 
-  # browser()
+  browser()
 
   # Initialize key variables for the model
 
@@ -65,9 +65,7 @@ full_dlm_modeling <- function(
       }
       out
     }
-    # paste0("reg", seq_len(ncol(reg_data)))
   )
-
 
   hyper_params <- setdiff(state_components2, deterministic_components)
   n_hyper_params <- 1 + length(hyper_params)
