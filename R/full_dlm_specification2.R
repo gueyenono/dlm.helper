@@ -1,9 +1,9 @@
 full_dlm_modeling <- function(
-  series = uk_ksi$log_value,
-  state_components = NULL,
-  deterministic_components = NULL,
-  seasonal_frequency = NULL,
-  reg_data = NULL
+    series = uk_ksi$log_value,
+    state_components = NULL,
+    deterministic_components = NULL,
+    seasonal_frequency = NULL,
+    reg_data = NULL
 ){
 
   # ERROR HANDLING HERE!!!
@@ -34,8 +34,30 @@ full_dlm_modeling <- function(
 
   # Stochastic hyperparameters
 
+  non_reg_state_comps <- state_components[!state_components %in% "regressor"]
+  n_deter_reg <- sum(grepl(pattern = "reg\\d+", x = deterministic_components, ignore.case = TRUE))
 
+  state_components2 <- c(
+    setdiff(state_components, "regressor"),
+    {
+      if("regressor" %in% state_components){
+        out <- paste0("reg", seq_len(ncol(reg_data)))
+      } else {
+        out <- NULL
+      }
+      out
+    }
+  )
 
+  stoch_state_comps <- setdiff(state_components2, deterministic_components)
+  n_hyper_params <- 1 + length(stoch_state_comps)
+
+  # Initial values of the stochastic hyperparameters
+
+  parm <- hyper_params_initial <- c(
+    var(series),
+    rep(0.001, n_hyper_params-1)
+  )
 
   # Function for building the model
 
@@ -43,35 +65,78 @@ full_dlm_modeling <- function(
 
     mod_list <- list()
 
+    dW_seas <- NULL
+    dW_reg <- NULL
+
+    # Level/slope component
+
     mod_list$poly <- dlm::dlmModPoly(
       order = order,
       dV = exp(parm[1]),
       dW = {
-        level_and_or_slope_deter_comps <- grep(pattern = "level|slope", x = deterministic_components, value = TRUE)
-        out <- purrr::imap_chr(level_and_or_slope_comps, function(comp, i){
-          ifelse(comp %in% level_and_or_slope_deter_comps, "0", glue::glue("exp(parm[{1+i}])"))
-        }) %>%
-          str2expression()
-        purrr::map_dbl(out, ~ eval(.x))
+        dW_poly <- glue::glue("exp(parm[{seq_len(order)}])")
+        index_deter_poly <- purrr::imap_dbl(level_and_or_slope_comps, function(comp, i){
+          if(comp %in% deterministic_components){
+            return(i)
+          } else {
+            return(NA)
+          }
+        })
+        dW_poly[index_deter_poly] <- "0"
+        dW_poly |>
+          str2expression() |>
+          purrr::map_dbl(~ eval(.x))
       }
     )
 
-    purrr::map(state_components, function(comp){
+    # Seasonal component
+    if("seasonal" %in% state_components){
 
-
-
-    })
-
-    # > Level + slope
-
-    dW <-
-
-    mod_list$poly <- dlm::dlmModPoly(
-      order = order,
-      dV = exp(parm[1])
-    )
-
+      mod_list$seas <- dlm::dlmModSeas(
+        frequency = seasonal_frequency,
+        dV = 0,
+        dW = {
+          dW_seas <- rep(0, times = seasonal_frequency - 1)
+          seas_comp_i <- which(stoch_state_comps == "seasonal")
+          if(!"seasonal" %in% deterministic_components) dW_seas[1] <- eval(str2expression(glue::glue("exp(parm[{1 + seas_comp_i}])")))
+          dW_seas
+        }
+      )
+    }
 
   }
+
+  # Estimation of the model's hyperparameters with Maximul Likelihood Estimation (MLE)
+
+  hyper_parms_mle_est <- dlm::dlmMLE(
+    y = series,
+    parm = log(hyper_params_initial),
+    build = func_dlm_mod
+  )
+
+  # Do we have convergence?
+
+  stopifnot("No convergence was reached on the maximum likelihood estimation of the model's hyperparameters!" = hyper_parms_mle_est$convergence == 0)
+
+  # Build the model using the MLE hyperparameter estimates
+  dlm_mod <- func_dlm_mod(parm = hyper_parms_mle_est$par)
+
+  # Filter and smooth the state with the Kalman procedures
+  dlm_filtered <- dlm::dlmFilter(y = series, mod = dlm_mod)
+  dlm_smoothed <- dlm::dlmSmooth(y = series, mod = dlm_mod)
+
+  # Get log-likelihood at convergence (needed to compute the AIC)
+  ll <- get_log_likelihood(dlm_filtered = dlm_filtered)
+
+  # Get log-likelihood at convergence (similar to the book's)
+  ll2 <- ll / length(series)
+
+  # Compute model's AIC
+  dlm_aic <- get_AIC(log_likelihood = ll, n_state_vars = n_state_vars, n_hyper_params = n_hyper_params)
+
+  # Compute model's AIC (similar to the book's)
+  dlm_aic2 <- dlm_aic / length(series)
+
+  dlm_filtered$s[2, 1]
 
 }
