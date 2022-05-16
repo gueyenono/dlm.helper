@@ -34,8 +34,8 @@ full_dlm_modeling <- function(
 
   # Stochastic hyperparameters
 
-  non_reg_state_comps <- state_components[!state_components %in% "regressor"]
-  n_deter_reg <- sum(grepl(pattern = "reg\\d+", x = deterministic_components, ignore.case = TRUE))
+  # non_reg_state_comps <- state_components[!state_components %in% "regressor"]
+  # n_deter_reg <- sum(grepl(pattern = "reg\\d+", x = deterministic_components, ignore.case = TRUE))
 
   state_components2 <- c(
     setdiff(state_components, "regressor"),
@@ -65,11 +65,7 @@ full_dlm_modeling <- function(
 
     mod_list <- list()
 
-    dW_seas <- NULL
-    dW_reg <- NULL
-
     # Level/slope component
-
     mod_list$poly <- dlm::dlmModPoly(
       order = order,
       dV = exp(parm[1]),
@@ -102,6 +98,36 @@ full_dlm_modeling <- function(
           dW_seas
         }
       )
+    }
+
+    # Explanatory variable(s) components
+    if("regressor" %in% state_components){
+
+      mod_list$reg <- dlm::dlmModReg(
+        X = reg_data,
+        dV = 0,
+        dW = {
+
+          dW_reg <- rep("0", n_regressors)
+
+          reg_comps <- paste0("reg", seq_len(n_regressors))
+          n_level_slope_stoch_comps <- sum(grepl(pattern = "level|slope", x = stoch_state_comps))
+          n_stoch_seas <- ifelse(!"seasonal" %in% deterministic_components, 1, 0)
+          reg_stoch_comps <- grep(pattern = "^reg\\d+$", x = stoch_state_comps, value = TRUE)
+
+          if(length(reg_stoch_comps) != 0){
+            reg_stoch_comp_i <- which(reg_comps %in% stoch_state_comps)
+            reg_stoch_comp_i2 <- which(reg_stoch_comps %in% stoch_state_comps) + n_level_slope_stoch_comps + n_stoch_seas + 1
+            dW_reg[reg_stoch_comp_i] <- glue::glue("exp(parm[{reg_stoch_comp_i2}])")
+          }
+
+          dW_reg |>
+            str2expression() |>
+            purrr::map_dbl(~ eval(.x))
+        },
+        addInt = FALSE
+      )
+
     }
 
   }
