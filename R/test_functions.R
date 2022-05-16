@@ -18,6 +18,9 @@ uk_ksi <- tibble::tibble(
 gas_price_data <- readr::read_lines(file = here::here("data-raw/logUKpetrolprice.txt"), skip = 1) |>
   as.numeric()
 
+# Seat belt law dummy
+seat_belt_dummy <- rep(0, nrow(uk_ksi))
+seat_belt_dummy[170:length(seat_belt_dummy)] <- 1
 
 # Chapter 2: The local level model ----
 
@@ -115,7 +118,7 @@ gas_price_data <- readr::read_lines(file = here::here("data-raw/logUKpetrolprice
   reg_data = as.numeric(seq_len(nrow(uk_ksi)))
 ))
 
-# 5.1b Deterministic level and explanatory variable
+# 5.1b Deterministic level and deterministic explanatory variable
 
 (llmev1b <- full_dlm_modeling(
   series = uk_ksi$log_value,
@@ -123,3 +126,66 @@ gas_price_data <- readr::read_lines(file = here::here("data-raw/logUKpetrolprice
   deterministic_components = c("level", "reg1"),
   reg_data = gas_price_data
 ))
+
+# 5.2 Stochastic level and deterministic explanatory variable
+
+(llmev2 <- full_dlm_modeling(
+  series = uk_ksi$log_value,
+  state_components = c("level", "regressor"),
+  deterministic_components = "reg1",
+  reg_data = gas_price_data
+))
+
+
+# Chapter 6 - The local level model with intervention variable
+
+# 6.1 Deterministic level and deterministic intervention variable
+
+(llmiv1 <- full_dlm_modeling(
+  series = uk_ksi$log_value,
+  state_components = c("level", "regressor"),
+  deterministic_components = c("level", "reg1"),
+  reg_data = seat_belt_dummy
+))
+
+# 6.2 Stochastic level and deterministic intervention variable
+
+(llmiv2 <- full_dlm_modeling(
+  series = uk_ksi$log_value,
+  state_components = c("level", "regressor"),
+  deterministic_components = "reg1",
+  reg_data = seat_belt_dummy
+))
+
+# initial_values <- c(
+#   var(uk_ksi$log_value),
+#   rep(0.001, 2)
+# )
+#
+# build_func <- function(parm){
+#   mod1 <- dlm::dlmModPoly(
+#     order = 1,
+#     dV = exp(parm[1]),
+#     dW = exp(parm[2])
+#   )
+#   mod2 <- dlm::dlmModReg(
+#     X = gas_price_data,
+#     dV = 0,
+#     dW = exp(parm[3]),
+#     addInt = FALSE
+#   )
+#   mod1 + mod2
+# }
+#
+# mle_est <- dlm::dlmMLE(
+#   y = uk_ksi$log_value,
+#   parm = log(initial_values),
+#   build = build_func
+# )
+#
+# mod <- build_func(parm = mle_est$par)
+#
+# filt <- dlm::dlmFilter(y = uk_ksi$log_value, mod = mod)
+# smot <- dlm::dlmSmooth(y = filt, mod = mod)
+#
+# smot$s[2,1]

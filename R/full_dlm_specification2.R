@@ -118,7 +118,7 @@ full_dlm_modeling <- function(
           dW_reg <- rep("0", n_regressors)
           reg_comps <- paste0("reg", seq_len(n_regressors))
           n_level_slope_stoch_comps <- sum(grepl(pattern = "level|slope", x = stoch_state_comps))
-          n_stoch_seas <- ifelse(!"seasonal" %in% deterministic_components, 1, 0)
+          n_stoch_seas <- ifelse("seasonal" %in% deterministic_components, 1, 0)
           reg_stoch_comps <- grep(pattern = "^reg\\d+$", x = stoch_state_comps, value = TRUE)
 
           if(length(reg_stoch_comps) != 0){
