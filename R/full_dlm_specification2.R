@@ -1,5 +1,5 @@
 full_dlm_modeling <- function(
-    series = uk_ksi$log_value,
+    series,
     state_components = NULL,
     deterministic_components = NULL,
     seasonal_frequency = NULL,
@@ -8,11 +8,17 @@ full_dlm_modeling <- function(
 
   # ERROR HANDLING HERE!!!
 
-  stopifnot("The 'state_components' argument suggests that the model contains at least one explanatory variable, but no data was provided in the 'reg_data' argument." = "regressor" %in% state_components & is.null(reg_data))
+  # stopifnot("The 'state_components' argument suggests that the model contains at least one explanatory variable, but no data was provided in the 'reg_data' argument." = "regressor" %in% state_components & is.null(reg_data))
+  #
+  # stopifnot("The 'reg_data' argument must be of one of the following classes: 'numeric', 'matrix' or 'data.frame'." = ("regressor" %in% state_components & class(reg_data)[1] %in% c("matrix", "numeric", "double", "data.frame")) | (!"regressor" %in% state_components & is.null(reg_data)))
+  #
+  # stopifnot("The state_components argument must contain any combination of 'level' (mandatory), 'slope', 'seasonal' and 'regressor'." =  all(state_components %in% c("level", "slope", "seasonal", "regressor")))
 
-  stopifnot("The 'reg_data' argument must be of one of the following classes: 'numeric', 'matrix' or 'data.frame'." = ("regressor" %in% state_components & class(reg_data)[1] %in% c("matrix", "numeric", "double", "data.frame")) | (!"regressor" %in% state_components & is.null(reg_data)))
+  # Error: If a deterministic component is not specified as a state component
+  # Error: "regressor" instead of "reg1", "reg2", ... in deterministic_components
 
-  stopifnot("The state_components argument must contain any combination of 'level' (mandatory), 'slope', 'seasonal' and 'regressor'." =  all(state_components %in% c("level", "slope", "seasonal", "regressor")))
+  # browser()
+
 
   # Order of the polynomial model
 
@@ -59,6 +65,7 @@ full_dlm_modeling <- function(
     rep(0.001, n_hyper_params-1)
   )
 
+
   # Function for building the model
 
   func_dlm_mod <- function(parm){
@@ -70,7 +77,7 @@ full_dlm_modeling <- function(
       order = order,
       dV = exp(parm[1]),
       dW = {
-        dW_poly <- glue::glue("exp(parm[{seq_len(order)}])")
+        dW_poly <- glue::glue("exp(parm[{1+seq_len(order)}])")
         index_deter_poly <- purrr::imap_dbl(level_and_or_slope_comps, function(comp, i){
           if(comp %in% deterministic_components){
             return(i)
@@ -98,6 +105,7 @@ full_dlm_modeling <- function(
           dW_seas
         }
       )
+
     }
 
     # Explanatory variable(s) components
@@ -107,9 +115,7 @@ full_dlm_modeling <- function(
         X = reg_data,
         dV = 0,
         dW = {
-
           dW_reg <- rep("0", n_regressors)
-
           reg_comps <- paste0("reg", seq_len(n_regressors))
           n_level_slope_stoch_comps <- sum(grepl(pattern = "level|slope", x = stoch_state_comps))
           n_stoch_seas <- ifelse(!"seasonal" %in% deterministic_components, 1, 0)
@@ -127,8 +133,9 @@ full_dlm_modeling <- function(
         },
         addInt = FALSE
       )
-
     }
+
+    Reduce("+", mod_list)
 
   }
 
@@ -163,6 +170,10 @@ full_dlm_modeling <- function(
   # Compute model's AIC (similar to the book's)
   dlm_aic2 <- dlm_aic / length(series)
 
-  dlm_filtered$s[2, 1]
+  if(is.atomic(dlm_smoothed$s)){
+    return(dlm_smoothed$s[2])
+  } else {
+    return(dlm_smoothed$s[2,1])
+  }
 
 }
