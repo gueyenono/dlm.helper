@@ -1,3 +1,12 @@
+#' Visualizations for model diagnostics
+#' @description The function makes some visualizations for determining the model's goodness of it: residuals, autocorrelation function (ACF), QQ-plot and the p-values of the Ljung-Box statistic.
+#' @param dlm_mod The output of the \code{dlm::full_dlm_modeling} function.
+#'
+#' @return A \code{list} of \code{ggplot} objects.
+#' @export
+#'
+#' @examples
+#' Soon!
 full_dlm_viz <- function(dlm_mod){
 
   stopifnot( "'dlm_mod' must be the output of the 'full_dlm_modeling' function." = class(dlm_mod) == "dlm_mod")

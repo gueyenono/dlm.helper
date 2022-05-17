@@ -6,7 +6,8 @@
 \usage{
 full_dlm_modeling(
   series,
-  state_components = "level",
+  time_variable = NULL,
+  state_components = NULL,
   deterministic_components = NULL,
   seasonal_frequency = NULL,
   reg_data = NULL
@@ -14,6 +15,8 @@ full_dlm_modeling(
 }
 \arguments{
 \item{series}{Numeric vector of the data}
+
+\item{time_variable}{(optional) The corresponding time variable for the \code{series} argument.}
 
 \item{state_components}{Character vector of the state components. Must be any combination of the following elements: \code{c("level", "slope", "seasonal", "regressor")}. Must contain \code{"level"} at least.}
 
