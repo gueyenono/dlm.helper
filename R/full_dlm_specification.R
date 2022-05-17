@@ -1,6 +1,7 @@
 #' Dynamic Linear Model Estimation
 #'
 #' @param series Numeric vector of the data
+#' @param time_variable (optional) The corresponding time variable for the \code{series} argument.
 #' @param state_components Character vector of the state components. Must be any combination of the following elements: \code{c("level", "slope", "seasonal", "regressor")}. Must contain \code{"level"} at least.
 #' @param deterministic_components Character vector specifying the deterministic state components. Must be any combination of the following elements: \code{c("level", "slope", "seasonal")}. Deterministic explanatory variable coefficients must be specified as "reg1", "reg2", ... Each "reg" corresponds to a variable in \code{reg_data}.
 #' @param seasonal_frequency Numeric vector of length 1. Periodicity of the seasonal component. Must be different from \code{NULL} if \code{state_components} contains \code{"seasonal"}.
@@ -13,6 +14,7 @@
 #' Soon!
 full_dlm_modeling <- function(
     series,
+    time_variable = NULL,
     state_components = NULL,
     deterministic_components = NULL,
     seasonal_frequency = NULL,
@@ -29,6 +31,8 @@ full_dlm_modeling <- function(
 
   # Error: If a deterministic component is not specified as a state component
   # Error: "regressor" instead of "reg1", "reg2", ... in deterministic_components
+  # Error: time_var has different length from series
+  # Error: ditto for reg_data
 
   # browser()
 
@@ -213,7 +217,7 @@ full_dlm_modeling <- function(
     ) |>
     dplyr::relocate(t, series, 1)
 
-  level_plus_state <- purrr::map_dfc(state_components, function(comp){
+  all_states <- purrr::map_dfc(state_components, function(comp){
     if(comp == "level"){
       out <- smoothed_estimates[["level"]][-1]
     }
@@ -233,13 +237,32 @@ full_dlm_modeling <- function(
   }) |>
     rowSums()
 
-  smoothed_estimates$level_plus_state <- c(NA, level_plus_state)
+  smoothed_estimates$all_states <- c(NA, all_states)
 
-  smoothed_estimates$residuals <- c(NA, series) - smoothed_estimates$level_plus_state
+  smoothed_estimates$residuals <- c(NA, series) - smoothed_estimates$all_states
   smoothed_estimates$residuals_raw <- c(NA, dlm:::residuals.dlmFiltered(object = dlm_filtered, type = "raw", sd = FALSE))
   smoothed_estimates$residuals_stdzd <- c(NA, dlm:::residuals.dlmFiltered(object = dlm_filtered, type = "standardized", sd = FALSE))
 
+  # browser()
+
+  smoothed_estimates$smoothed_variance <- {
+    variance <- dlm::dlmSvd2var(u = dlm_smoothed$U.S, d = dlm_smoothed$D.S)
+    purrr::map_dbl(variance, ~ .x[1, 1])
+  }
+
+  smoothed_estimates$conf_band_lower <- smoothed_estimates$all_states - qnorm(0.025, lower.tail = FALSE) * sqrt(smoothed_estimates$smoothed_variance)
+  smoothed_estimates$conf_band_upper <- smoothed_estimates$all_states + qnorm(0.025, lower.tail = FALSE) * sqrt(smoothed_estimates$smoothed_variance)
+
+
   out <- list(
+    time = {
+      if(is.null(time_variable)){
+        out <- NULL
+      } else {
+        out <- time_variable
+      }
+      out
+    },
     series = series,
     n_state_vars = n_state_vars,
     n_hyper_params = n_hyper_params,
@@ -260,6 +283,5 @@ full_dlm_modeling <- function(
   class(out) <- "dlm_model"
 
   out
-
 
 }

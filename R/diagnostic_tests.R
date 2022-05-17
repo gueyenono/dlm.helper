@@ -104,20 +104,8 @@ dt_normality <- function(dlm_filtered){
 #' @examples
 #' Soon!
 diagnostic_tests <- function(dlm_filtered, n_lags){
-
   ind <- dt_independence(dlm_filtered = dlm_filtered, n_lags = n_lags)
   hom <- dt_homoskedasticity(dlm_filtered = dlm_filtered)
   norm <- dt_normality(dlm_filtered = dlm_filtered)
-
-  Reduce(rbind, list(ind, hom, norm))
-
-}
-
-full_dlm_diagnostics <- function(dlm_model, lags){
-
-  ind <- dt_independence(dlm_model$filtered, dlm_model$n_state_vars)
-  hom <- dt_homoskedasticity(dlm_model$filtered, dlm_model$n_state_vars)
-  norm <- dt_normality(dlm_model$filtered, dlm_model$n_state_vars)
-
   Reduce(rbind, list(ind, hom, norm))
 }
