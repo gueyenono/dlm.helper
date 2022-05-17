@@ -32,6 +32,7 @@ full_dlm_modeling <- function(
   # Error: If a deterministic component is not specified as a state component
   # Error: "regressor" instead of "reg1", "reg2", ... in deterministic_components
   # Error: time_var has different length from series
+  # Error: time_var is not of the Date class
   # Error: ditto for reg_data
 
   # browser()
@@ -252,6 +253,9 @@ full_dlm_modeling <- function(
 
   smoothed_estimates$conf_band_lower <- smoothed_estimates$all_states - qnorm(0.025, lower.tail = FALSE) * sqrt(smoothed_estimates$smoothed_variance)
   smoothed_estimates$conf_band_upper <- smoothed_estimates$all_states + qnorm(0.025, lower.tail = FALSE) * sqrt(smoothed_estimates$smoothed_variance)
+
+  smoothed_estimates <- smoothed_estimates[-1, ]
+  smoothed_estimates$time <- time_variable
 
 
   out <- list(

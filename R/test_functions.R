@@ -152,10 +152,13 @@ seat_belt_dummy[170:length(seat_belt_dummy)] <- 1
 
 (llmiv2 <- full_dlm_modeling(
   series = uk_ksi$log_value,
+  time_variable = uk_ksi$date,
   state_components = c("level", "regressor"),
   deterministic_components = "reg1",
   reg_data = seat_belt_dummy
 ))
+
+dlm_mod <- llmiv2
 
 # Chapter 0 - Random models I am just trying out ----
 
