@@ -38,9 +38,6 @@ full_dlm_modeling <- function(
   # Error: time_var is not of the Date class
   # Error: ditto for reg_data
 
-  # browser()
-
-
   # Order of the polynomial model
 
   order <- dplyr::case_when(
@@ -213,7 +210,6 @@ full_dlm_modeling <- function(
 
   col_names <- Reduce(f = c, x = col_names0)
 
-  # browser()
 
   smoothed_estimates <- data[, c(t_var, y_var)] |>
     dplyr::bind_cols(dplyr::as_tibble(dlm_smoothed$s[-1, ], .name_repair = "unique")) |>
