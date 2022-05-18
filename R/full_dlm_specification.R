@@ -9,16 +9,15 @@
 #' @param reg_data Numeric vector, data frame or matrix. Contains the explanatory variable(s). Must be different from \code{NULL} if \code{state_components} contains \code{"regressor"}.
 #'
 #' @return A list containing the model's output and metadata.
+#'
 #' @export
 #'
 #' @examples
-#' Soon!
+#' print("Soon!")
 full_dlm_modeling <- function(
     data,
     t_var,
     y_var,
-    series,
-    time_variable = NULL,
     state_components = NULL,
     deterministic_components = NULL,
     seasonal_frequency = NULL,
@@ -217,7 +216,7 @@ full_dlm_modeling <- function(
   # browser()
 
   smoothed_estimates <- data[, c(t_var, y_var)] |>
-    dplyr::bind_cols(tibble::as_tibble(dlm_smoothed$s[-1, ], .name_repair = "unique")) |>
+    dplyr::bind_cols(dplyr::as_tibble(dlm_smoothed$s[-1, ], .name_repair = "unique")) |>
     setNames(Reduce(f = c, x = c("time", "series", col_names)))
 
   all_states <- purrr::map_dfc(state_components, function(comp){

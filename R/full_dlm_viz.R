@@ -6,8 +6,8 @@
 #' @export
 #'
 #' @examples
-#' Soon!
-full_dlm_viz <- function(dlm_mod){
+#' print("Soon!")
+diag_viz <- function(dlm_mod){
 
   stopifnot( "'dlm_mod' must be the output of the 'full_dlm_modeling' function." = class(dlm_mod) == "dlm_mod")
 
@@ -23,8 +23,8 @@ full_dlm_viz <- function(dlm_mod){
     ) +
     ggplot2::theme_bw()
 
-  diag_viz$ljungbox <- purrr::map_dbl(1:10, ~  Box.test(x = dlm_mod$smoothed_estimates$residuals_stdzd, lag = .x, type = "Ljung-Box")$p.value) %>%
-    tibble::enframe(name = "lag", value = "p.value") %>%
+  diag_viz$ljungbox <- purrr::map_dbl(1:10, ~  stats::Box.test(x = dlm_mod$smoothed_estimates$residuals_stdzd, lag = .x, type = "Ljung-Box")$p.value) |>
+    tibble::enframe(name = "lag", value = "p.value") |>
     ggplot2::ggplot(ggplot2::aes(x = lag, y = p.value)) +
     ggplot2::geom_point() +
     ggplot2::geom_hline(yintercept = 0.05, color = "red", linetype = 2) +

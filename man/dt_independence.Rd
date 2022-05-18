@@ -18,5 +18,5 @@ A data.frame/tibble of the model results including a column specifying whether t
 The Ljung-Box procedure implements a test against the null hypothesis of independence.
 }
 \examples{
-Soon
+print("Soon!")
 }

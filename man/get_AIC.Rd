@@ -20,5 +20,5 @@ The Akaike Information Criterion (AIC) of the model.
 Calculate the value of the AIC
 }
 \examples{
-Soon!
+print("Soon!")
 }

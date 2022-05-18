@@ -16,5 +16,5 @@ A data.frame/tibble of the model results including a column specifying whether t
 The H-test procedure implements a test against the null hypothesis of homoskedastic residuals.
 }
 \examples{
-Soon!
+print("Soon!")
 }

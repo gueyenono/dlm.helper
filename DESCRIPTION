@@ -15,5 +15,12 @@ RoxygenNote: 7.2.0
 Depends: 
     R (>= 2.10)
 LazyData: true
-Imports: 
-    magrittr
+Imports:
+    dlm,
+    dplyr,
+    forecast,
+    ggplot2,
+    glue,
+    purrr,
+    tibble,
+    tseries

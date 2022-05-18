@@ -16,5 +16,5 @@ A data.frame/tibble of the model results including a column specifying whether t
 Jarque-Bera test of normality of the model residuals
 }
 \examples{
-Soon!
+print("Soon!")
 }

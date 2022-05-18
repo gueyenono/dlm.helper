@@ -5,16 +5,16 @@
 #' @return The value of the log-likelihood function.
 #'
 #' @examples
-#' Soon!
+#' print("Soon!")
 get_log_likelihood <- function(dlm_filtered){
-  n_state_vars <- nrow(dlm_filtered$mod$W)
-  irregular <- residuals(object = dlm_filtered, type = "raw", sd = TRUE)
+  n_state_vars <- base::nrow(dlm_filtered$mod$W)
+  irregular <- dlm:::residuals.dlmFiltered(object = dlm_filtered, type = "raw", sd = TRUE)
 
-  n <- length(irregular$res)
-  pred_error <- irregular$res[-seq_len(n_state_vars)]
-  pred_error_var <- irregular$sd[-seq_len(n_state_vars)]^2
+  n <- base::length(irregular$res)
+  pred_error <- irregular$res[-base::seq_len(n_state_vars)]
+  pred_error_var <- irregular$sd[-base::seq_len(n_state_vars)]^2
 
-  - 0.5 * n * log(2*pi) - 0.5 * sum(log(pred_error_var) + (pred_error^2/pred_error_var))
+  - 0.5 * n * base::log(2*pi) - 0.5 * base::sum(base::log(pred_error_var) + (pred_error^2/pred_error_var))
 }
 
 
@@ -27,7 +27,7 @@ get_log_likelihood <- function(dlm_filtered){
 #' @return The Akaike Information Criterion (AIC) of the model.
 #'
 #' @examples
-#' Soon!
+#' print("Soon!")
 get_AIC <- function(log_likelihood, n_state_vars, n_hyper_params){
   -2 * log_likelihood + 2 * (n_state_vars + n_hyper_params)
 }

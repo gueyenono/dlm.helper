@@ -8,8 +8,6 @@ full_dlm_modeling(
   data,
   t_var,
   y_var,
-  series,
-  time_variable = NULL,
   state_components = NULL,
   deterministic_components = NULL,
   seasonal_frequency = NULL,
@@ -38,5 +36,5 @@ A list containing the model's output and metadata.
 Dynamic Linear Model Estimation
 }
 \examples{
-Soon!
+print("Soon!")
 }

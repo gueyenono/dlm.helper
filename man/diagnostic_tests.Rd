@@ -9,7 +9,7 @@ diagnostic_tests(dlm_filtered, n_lags)
 \arguments{
 \item{dlm_filtered}{The output from \code{dlm::dlmFilter()}.}
 
-\item{n_lags}{}
+\item{n_lags}{Number of lags of the independence test (i.e. the Ljung-Box test)}
 }
 \value{
 A data.frame/tibble of the model results including a column specifying whether the assumptions of independence, homoskedasticity and normality of the residuals is satisfied.
@@ -18,5 +18,5 @@ A data.frame/tibble of the model results including a column specifying whether t
 This function implements the Ljung-Box test of independence, the H-test of homoskedasticity and the Jarque-Bera test of normality on the model residuals.
 }
 \examples{
-Soon!
+print("Soon!")
 }

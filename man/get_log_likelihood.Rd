@@ -16,5 +16,5 @@ The value of the log-likelihood function.
 Calculate the value of the log-likelihood function
 }
 \examples{
-Soon!
+print("Soon!")
 }
