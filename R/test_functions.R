@@ -27,7 +27,9 @@
 # # 2.1 - Deterministic level
 #
 # (llm1 <- full_dlm_modeling(
-#   series = uk_ksi$log_value,
+#   data = ukksi,
+#   t_var = "date",
+#   y_var = "log_ksi",
 #   state_components = "level",
 #   deterministic_components = "level"
 # ))

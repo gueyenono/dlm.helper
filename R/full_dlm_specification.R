@@ -210,8 +210,14 @@ full_dlm_modeling <- function(
 
   col_names <- Reduce(f = c, x = col_names0)
 
+  if(base::all(state_components == "level")){
+    state_estimates <- tibble::tibble(level = dlm_smoothed$s[-1])
+  } else {
+    state_estimates <- tibble::as_tibble(dlm_smoothed$s[-1, ], .name_repair = "unique")
+  }
+
   smoothed_estimates <- data[, c(t_var, y_var)] |>
-    dplyr::bind_cols(dplyr::as_tibble(dlm_smoothed$s[-1, ], .name_repair = "unique")) |>
+    dplyr::bind_cols(state_estimates) |>
     setNames(Reduce(f = c, x = c("time", "series", col_names)))
 
   all_states <- purrr::map_dfc(state_components, function(comp){
