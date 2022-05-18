@@ -1,7 +1,8 @@
 #' Dynamic Linear Model Estimation
 #'
-#' @param series Numeric vector of the data
-#' @param time_variable (optional) The corresponding time variable for the \code{series} argument.
+#' @param data Data frame/tibble containing the series to model and the time variable.
+#' @param y_var Character (atomic) vector of length 1. Column name of the y variable.
+#' @param t_var Date vector of length 1. Column name of the time/date variable.
 #' @param state_components Character vector of the state components. Must be any combination of the following elements: \code{c("level", "slope", "seasonal", "regressor")}. Must contain \code{"level"} at least.
 #' @param deterministic_components Character vector specifying the deterministic state components. Must be any combination of the following elements: \code{c("level", "slope", "seasonal")}. Deterministic explanatory variable coefficients must be specified as "reg1", "reg2", ... Each "reg" corresponds to a variable in \code{reg_data}.
 #' @param seasonal_frequency Numeric vector of length 1. Periodicity of the seasonal component. Must be different from \code{NULL} if \code{state_components} contains \code{"seasonal"}.
@@ -13,6 +14,9 @@
 #' @examples
 #' Soon!
 full_dlm_modeling <- function(
+    data,
+    t_var,
+    y_var,
     series,
     time_variable = NULL,
     state_components = NULL,
@@ -76,7 +80,7 @@ full_dlm_modeling <- function(
   # Initial values of the stochastic hyperparameters
 
   parm <- hyper_params_initial <- c(
-    var(series),
+    var(data[[y_var]]),
     rep(0.001, n_hyper_params-1)
   )
 
@@ -156,7 +160,7 @@ full_dlm_modeling <- function(
   # Estimation of the model's hyperparameters with Maximul Likelihood Estimation (MLE)
 
   hyper_parms_mle_est <- dlm::dlmMLE(
-    y = series,
+    y = data[[y_var]],
     parm = log(hyper_params_initial),
     build = func_dlm_mod
   )
@@ -168,20 +172,20 @@ full_dlm_modeling <- function(
   dlm_mod <- func_dlm_mod(parm = hyper_parms_mle_est$par)
 
   # Filter and smooth the state with the Kalman procedures
-  dlm_filtered <- dlm::dlmFilter(y = series, mod = dlm_mod)
-  dlm_smoothed <- dlm::dlmSmooth(y = series, mod = dlm_mod)
+  dlm_filtered <- dlm::dlmFilter(y = data[[y_var]], mod = dlm_mod)
+  dlm_smoothed <- dlm::dlmSmooth(y = data[[y_var]], mod = dlm_mod)
 
   # Get log-likelihood at convergence (needed to compute the AIC)
   ll <- get_log_likelihood(dlm_filtered = dlm_filtered)
 
   # Get log-likelihood at convergence (similar to the book's)
-  ll2 <- ll / length(series)
+  ll2 <- ll / nrow(data)
 
   # Compute model's AIC
   dlm_aic <- get_AIC(log_likelihood = ll, n_state_vars = n_state_vars, n_hyper_params = n_hyper_params)
 
   # Compute model's AIC (similar to the book's)
-  dlm_aic2 <- dlm_aic / length(series)
+  dlm_aic2 <- dlm_aic / nrow(data)
 
 
   # Data frame of all smooth estimates
@@ -210,64 +214,46 @@ full_dlm_modeling <- function(
 
   col_names <- Reduce(f = c, x = col_names0)
 
-  smoothed_estimates <- tibble::as_tibble(dlm_smoothed$s, .name_repair = "unique") |>
-    setNames(Reduce(f = c, x = col_names)) |>
-    dplyr::mutate(
-      t = dplyr::row_number() - 1,
-      series = c(NA, dlm_filtered$y)
-    ) |>
-    dplyr::relocate(t, series, 1)
+  # browser()
+
+  smoothed_estimates <- data[, c(t_var, y_var)] |>
+    dplyr::bind_cols(tibble::as_tibble(dlm_smoothed$s[-1, ], .name_repair = "unique")) |>
+    setNames(Reduce(f = c, x = c("time", "series", col_names)))
 
   all_states <- purrr::map_dfc(state_components, function(comp){
     if(comp == "level"){
-      out <- smoothed_estimates[["level"]][-1]
+      out <- smoothed_estimates[["level"]]
     }
     if(comp == "slope"){
-      out <- smoothed_estimates[["slope"]][-1]
+      out <- smoothed_estimates[["slope"]]
     }
     if(comp == "regressor"){
-      if(is.atomic(reg_data)) reg_data_df <- as.data.frame(reg_data)
-      if(!is.atomic(reg_data)) reg_data_df <- reg_data
       reg_colnames <- grep(pattern = "reg\\d+", x = colnames(smoothed_estimates), value = TRUE)
-      out <- smoothed_estimates[-1, reg_colnames] * reg_data_df
+      out <- smoothed_estimates[, reg_colnames] * reg_data
     }
     if(comp == "seasonal"){
-      out <- smoothed_estimates[["seas1"]][-1]
+      out <- smoothed_estimates[["seas1"]]
     }
     out
   }) |>
     rowSums()
 
-  smoothed_estimates$all_states <- c(NA, all_states)
+  smoothed_estimates$all_states <- all_states
 
-  smoothed_estimates$residuals <- c(NA, series) - smoothed_estimates$all_states
-  smoothed_estimates$residuals_raw <- c(NA, dlm:::residuals.dlmFiltered(object = dlm_filtered, type = "raw", sd = FALSE))
-  smoothed_estimates$residuals_stdzd <- c(NA, dlm:::residuals.dlmFiltered(object = dlm_filtered, type = "standardized", sd = FALSE))
-
-  # browser()
+  smoothed_estimates$residuals <- data[[y_var]] - smoothed_estimates$all_states
+  smoothed_estimates$residuals_raw <- dlm:::residuals.dlmFiltered(object = dlm_filtered, type = "raw", sd = FALSE)
+  smoothed_estimates$residuals_stdzd <- dlm:::residuals.dlmFiltered(object = dlm_filtered, type = "standardized", sd = FALSE)
 
   smoothed_estimates$smoothed_variance <- {
     variance <- dlm::dlmSvd2var(u = dlm_smoothed$U.S, d = dlm_smoothed$D.S)
-    purrr::map_dbl(variance, ~ .x[1, 1])
+    purrr::map_dbl(variance[-1], ~ .x[1, 1])
   }
 
   smoothed_estimates$conf_band_lower <- smoothed_estimates$all_states - qnorm(0.025, lower.tail = FALSE) * sqrt(smoothed_estimates$smoothed_variance)
   smoothed_estimates$conf_band_upper <- smoothed_estimates$all_states + qnorm(0.025, lower.tail = FALSE) * sqrt(smoothed_estimates$smoothed_variance)
 
-  smoothed_estimates <- smoothed_estimates[-1, ]
-  smoothed_estimates$time <- time_variable
-
-
   out <- list(
-    time = {
-      if(is.null(time_variable)){
-        out <- NULL
-      } else {
-        out <- time_variable
-      }
-      out
-    },
-    series = series,
+    series = data[[y_var]],
     n_state_vars = n_state_vars,
     n_hyper_params = n_hyper_params,
     seasonal_frequency = seasonal_frequency,
