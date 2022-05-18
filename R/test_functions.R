@@ -152,11 +152,11 @@
 #
 # new_mod <- full_dlm_modeling(
 #   data = ukksi,
-#   y_var = "value",
+#   y_var = "log_ksi",
 #   t_var = "date",
 #   state_components = c("level", "regressor"),
 #   deterministic_components = "reg1",
-#   reg_data = seat_belt_dummy
+#   reg_vars = "sb_law"
 # )
 #
 # (llmiv2 <- full_dlm_modeling(
