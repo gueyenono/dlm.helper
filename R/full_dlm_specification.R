@@ -210,7 +210,6 @@ full_dlm_modeling <- function(
 
   col_names <- Reduce(f = c, x = col_names0)
 
-
   smoothed_estimates <- data[, c(t_var, y_var)] |>
     dplyr::bind_cols(dplyr::as_tibble(dlm_smoothed$s[-1, ], .name_repair = "unique")) |>
     setNames(Reduce(f = c, x = c("time", "series", col_names)))
