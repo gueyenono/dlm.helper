@@ -5,6 +5,9 @@
 \title{Dynamic Linear Model Estimation}
 \usage{
 full_dlm_modeling(
+  data,
+  t_var,
+  y_var,
   series,
   time_variable = NULL,
   state_components = NULL,
@@ -14,9 +17,11 @@ full_dlm_modeling(
 )
 }
 \arguments{
-\item{series}{Numeric vector of the data}
+\item{data}{Data frame/tibble containing the series to model and the time variable.}
 
-\item{time_variable}{(optional) The corresponding time variable for the \code{series} argument.}
+\item{t_var}{Date vector of length 1. Column name of the time/date variable.}
+
+\item{y_var}{Character (atomic) vector of length 1. Column name of the y variable.}
 
 \item{state_components}{Character vector of the state components. Must be any combination of the following elements: \code{c("level", "slope", "seasonal", "regressor")}. Must contain \code{"level"} at least.}
 
