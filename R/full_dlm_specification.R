@@ -6,7 +6,7 @@
 #' @param state_components Character vector of the state components. Must be any combination of the following elements: \code{c("level", "slope", "seasonal", "regressor")}. Must contain \code{"level"} at least.
 #' @param deterministic_components Character vector specifying the deterministic state components. Must be any combination of the following elements: \code{c("level", "slope", "seasonal")}. Deterministic explanatory variable coefficients must be specified as "reg1", "reg2", ... Each "reg" corresponds to a variable in \code{reg_data}.
 #' @param seasonal_frequency Numeric vector of length 1. Periodicity of the seasonal component. Must be different from \code{NULL} if \code{state_components} contains \code{"seasonal"}.
-#' @param reg_data Numeric vector, data frame or matrix. Contains the explanatory variable(s). Must be different from \code{NULL} if \code{state_components} contains \code{"regressor"}.
+#' @param reg_vars Character vector of the column name(s) of the explanatory variable(s) in \code{data}. This requires \code{state_components} to include \code{"regressor"}.
 #'
 #' @return A list containing the model's output and metadata.
 #'
@@ -21,7 +21,7 @@ full_dlm_modeling <- function(
     state_components = NULL,
     deterministic_components = NULL,
     seasonal_frequency = NULL,
-    reg_data = NULL
+    reg_vars = NULL
 ){
 
   # ERROR HANDLING HERE!!!
@@ -47,7 +47,7 @@ full_dlm_modeling <- function(
 
   # Transform regression data from atomic vector to matrix
 
-  if("regressor" %in% state_components & is.atomic(reg_data)) reg_data <- as.matrix(reg_data)
+  if("regressor" %in% state_components) reg_data <- data[, reg_vars, drop = FALSE]
 
   # Calculate number of state variables
 
