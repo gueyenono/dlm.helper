@@ -18,7 +18,8 @@ dlm_state_viz <- function(dlm_mod){
   reg_cols <- grep(pattern = "reg\\d+", x = colnames(dlm_mod$smoothed_estimates), value = TRUE)
   cols <- c(
     intersect(x = colnames(dlm_mod$smoothed_estimates), cols_to_keep),
-    reg_cols
+    reg_cols,
+    "all_states"
   )
 
   out <- purrr::map(setdiff(x = cols, y = "time"), function(col){
