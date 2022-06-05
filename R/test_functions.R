@@ -186,7 +186,22 @@
 #   )
 # )
 #
-# dlm_mod <- mod1
+# # debug(full_dlm_modeling)
+#
+# new_mod1 <- full_dlm_modeling(
+#   data = ukksi,
+#   t_var = "date",
+#   y_var = "log_ksi",
+#   state_components = c("level", "slope", "seasonal", "regressor"),
+#   deterministic_components = NULL,
+#   seasonal_frequency = 12,
+#   reg_vars = c("log_gas", "sb_law")
+# )
+#
+# dlm_mod <- new_mod1
+#
+# state_viz <- dlm_state_viz(dlm_mod = new_mod1)
+# diag_viz <- dlm_diag_viz(dlm_mod = new_mod1)
 #
 #
 # # initial_values <- c(

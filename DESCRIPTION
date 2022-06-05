@@ -22,5 +22,6 @@ Imports:
     ggplot2,
     glue,
     purrr,
+    qqplotr,
     tibble,
     tseries

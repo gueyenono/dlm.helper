@@ -11,7 +11,7 @@ full_dlm_modeling(
   state_components = NULL,
   deterministic_components = NULL,
   seasonal_frequency = NULL,
-  reg_data = NULL
+  reg_vars = NULL
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ full_dlm_modeling(
 
 \item{seasonal_frequency}{Numeric vector of length 1. Periodicity of the seasonal component. Must be different from \code{NULL} if \code{state_components} contains \code{"seasonal"}.}
 
-\item{reg_data}{Numeric vector, data frame or matrix. Contains the explanatory variable(s). Must be different from \code{NULL} if \code{state_components} contains \code{"regressor"}.}
+\item{reg_vars}{Character vector of the column name(s) of the explanatory variable(s) in \code{data}. This requires \code{state_components} to include \code{"regressor"}.}
 }
 \value{
 A list containing the model's output and metadata.

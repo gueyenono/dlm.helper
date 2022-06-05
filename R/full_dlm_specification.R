@@ -253,6 +253,7 @@ full_dlm_modeling <- function(
   smoothed_estimates$conf_band_upper <- smoothed_estimates$all_states + qnorm(0.025, lower.tail = FALSE) * sqrt(smoothed_estimates$smoothed_variance)
 
   out <- list(
+    data = data[, c(t_var, y_var, reg_vars)],
     series = data[[y_var]],
     n_state_vars = n_state_vars,
     n_hyper_params = n_hyper_params,
