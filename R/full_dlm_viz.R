@@ -13,7 +13,6 @@ dlm_state_viz <- function(dlm_mod){
   stopifnot( "'dlm_mod' must be the output of the 'full_dlm_modeling' function." = class(dlm_mod) == "dlm_model")
 
   diag_viz <- list()
-
   cols_to_keep <- c("time", "level", "slope", "seas1")
   reg_cols <- grep(pattern = "reg\\d+", x = colnames(dlm_mod$smoothed_estimates), value = TRUE)
   cols <- c(
@@ -21,7 +20,6 @@ dlm_state_viz <- function(dlm_mod){
     reg_cols,
     "all_states"
   )
-
   out <- purrr::map(setdiff(x = cols, y = "time"), function(col){
     col_quo <- ggplot2::sym(col)
     p <- ggplot2::ggplot(data = dlm_mod$smoothed_estimates) +
@@ -30,11 +28,8 @@ dlm_state_viz <- function(dlm_mod){
       ggplot2::theme_minimal()
     p
   })
-
   names(out) <- base::setdiff(x = cols, y = "time")
-
   out
-
 }
 
 
