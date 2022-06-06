@@ -34,7 +34,7 @@ dlm_state_viz <- function(dlm_mod){
 
 
 #' Visualizations for model diagnostics
-#' @description The function makes some visualizations for determining the model's goodness of it: residuals, autocorrelation function (ACF), QQ-plot and the p-values of the Ljung-Box statistic.
+#' @description The function makes some visualizations for determining the model's goodness of it: residuals (raw), residuals (standardized), autocorrelation function (ACF), QQ-plot and the p-values of the Ljung-Box statistic.
 #' @param dlm_mod The output of the \code{dlm::full_dlm_modeling} function.
 #'
 #' @return A \code{list} of \code{ggplot} objects.
@@ -49,8 +49,17 @@ dlm_diag_viz <- function(dlm_mod){
   diag_viz <- list()
 
   # Residuals
-  diag_viz$resid <- ggplot2::ggplot(data = dlm_mod$smoothed_estimates) +
-    ggplot2::geom_line(mapping = ggplot2::aes(x = time, y = residuals)) +
+  diag_viz$resid_raw <- ggplot2::ggplot(data = dlm_mod$smoothed_estimates) +
+    ggplot2::geom_line(mapping = ggplot2::aes(x = time, y = residuals_raw)) +
+    ggplot2::geom_hline(yintercept = 0, linetype = 2) +
+    ggplot2::labs(
+      x = NULL,
+      y = NULL
+    ) +
+    ggplot2::theme_bw()
+
+  diag_viz$resid_stdzd <- ggplot2::ggplot(data = dlm_mod$smoothed_estimates) +
+    ggplot2::geom_line(mapping = ggplot2::aes(x = time, y = residuals_stdzd)) +
     ggplot2::geom_hline(yintercept = 0, linetype = 2) +
     ggplot2::labs(
       x = NULL,
