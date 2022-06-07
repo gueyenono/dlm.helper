@@ -8,9 +8,8 @@
 #'
 #' @examples
 #' print("Soon!")
-dt_independence <- function(dlm_mod, n_lags){
+dt_independence <- function(dlm_filtered, n_lags){
 
-  dlm_filtered <- dlm_mod$filtered
   n_state_vars <- base::nrow(dlm_filtered$mod$W)
   n_hyper_params <- 1 + base::sum(diag(dlm_filtered$mod$W) != 0)
   standardized_residuals <- dlm:::residuals.dlmFiltered(object = dlm_filtered, type = "standardized", sd = FALSE)
@@ -104,7 +103,8 @@ dt_normality <- function(dlm_filtered){
 #'
 #' @examples
 #' print("Soon!")
-diagnostic_tests <- function(dlm_filtered, n_lags){
+diagnostic_tests <- function(dlm_mod, n_lags){
+  dlm_filtered <- dlm_mod$filtered
   ind <- dt_independence(dlm_filtered = dlm_filtered, n_lags = n_lags)
   hom <- dt_homoskedasticity(dlm_filtered = dlm_filtered)
   norm <- dt_normality(dlm_filtered = dlm_filtered)
