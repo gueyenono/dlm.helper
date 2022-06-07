@@ -1,6 +1,6 @@
 #' Ljung-Box test of independence of the model residuals
 #' @description The Ljung-Box procedure implements a test against the null hypothesis of independence.
-#' @param dlm_filtered The output from \code{dlm::dlmFilter()}.
+#' @param dlm_mod The output of the \code{dlm::full_dlm_modeling} function.
 #' @param n_lags The number of lags to consider in the test.
 #'
 #' @return A data.frame/tibble of the model results including a column specifying whether the assumption of independence of the residuals is satisfied.
@@ -8,8 +8,9 @@
 #'
 #' @examples
 #' print("Soon!")
-dt_independence <- function(dlm_filtered, n_lags){
+dt_independence <- function(dlm_mod, n_lags){
 
+  dlm_filtered <- dlm_mod$filtered
   n_state_vars <- base::nrow(dlm_filtered$mod$W)
   n_hyper_params <- 1 + base::sum(diag(dlm_filtered$mod$W) != 0)
   standardized_residuals <- dlm:::residuals.dlmFiltered(object = dlm_filtered, type = "standardized", sd = FALSE)

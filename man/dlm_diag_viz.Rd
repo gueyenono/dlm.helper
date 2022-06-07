@@ -13,7 +13,7 @@ dlm_diag_viz(dlm_mod)
 A \code{list} of \code{ggplot} objects.
 }
 \description{
-The function makes some visualizations for determining the model's goodness of it: residuals, autocorrelation function (ACF), QQ-plot and the p-values of the Ljung-Box statistic.
+The function makes some visualizations for determining the model's goodness of it: residuals (raw), residuals (standardized), autocorrelation function (ACF), QQ-plot and the p-values of the Ljung-Box statistic.
 }
 \examples{
 print("Soon!")
