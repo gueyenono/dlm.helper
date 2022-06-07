@@ -4,10 +4,10 @@
 \alias{diagnostic_tests}
 \title{Diagnostic tests of a dynamic linear model (independence, homoskedasticity and normality)}
 \usage{
-diagnostic_tests(dlm_filtered, n_lags)
+diagnostic_tests(dlm_mod, n_lags)
 }
 \arguments{
-\item{dlm_filtered}{The output from \code{dlm::dlmFilter()}.}
+\item{dlm_mod}{The output of the \code{dlm::full_dlm_modeling} function.}
 
 \item{n_lags}{Number of lags of the independence test (i.e. the Ljung-Box test)}
 }

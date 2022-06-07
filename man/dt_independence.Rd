@@ -4,10 +4,10 @@
 \alias{dt_independence}
 \title{Ljung-Box test of independence of the model residuals}
 \usage{
-dt_independence(dlm_mod, n_lags)
+dt_independence(dlm_filtered, n_lags)
 }
 \arguments{
-\item{dlm_mod}{The output of the \code{dlm::full_dlm_modeling} function.}
+\item{dlm_filtered}{The output from \code{dlm::dlmFilter()}.}
 
 \item{n_lags}{The number of lags to consider in the test.}
 }

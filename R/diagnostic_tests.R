@@ -1,6 +1,6 @@
 #' Ljung-Box test of independence of the model residuals
 #' @description The Ljung-Box procedure implements a test against the null hypothesis of independence.
-#' @param dlm_mod The output of the \code{dlm::full_dlm_modeling} function.
+#' @param dlm_filtered The output from \code{dlm::dlmFilter()}.
 #' @param n_lags The number of lags to consider in the test.
 #'
 #' @return A data.frame/tibble of the model results including a column specifying whether the assumption of independence of the residuals is satisfied.
@@ -95,7 +95,7 @@ dt_normality <- function(dlm_filtered){
 
 #' Diagnostic tests of a dynamic linear model (independence, homoskedasticity and normality)
 #' @description This function implements the Ljung-Box test of independence, the H-test of homoskedasticity and the Jarque-Bera test of normality on the model residuals.
-#' @param dlm_filtered The output from \code{dlm::dlmFilter()}.
+#' @param dlm_mod The output of the \code{dlm::full_dlm_modeling} function.
 #' @param n_lags Number of lags of the independence test (i.e. the Ljung-Box test)
 #'
 #' @return A data.frame/tibble of the model results including a column specifying whether the assumptions of independence, homoskedasticity and normality of the residuals is satisfied.
